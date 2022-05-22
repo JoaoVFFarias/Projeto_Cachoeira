@@ -1,0 +1,62 @@
+#include "BluetoothSerial.h"
+
+#define echo 18
+#define trigger 5
+#define piezo 4
+
+BluetoothSerial SerialBT;
+long duration;
+int distance;
+int sensorRead;
+
+void setup() {
+  SerialBT.begin("ESP_Cachoeira");
+  Serial.println("pareamento disponivel\n");
+  pinMode(trigger, OUTPUT);
+  pinMode(echo, INPUT);
+  Serial.begin(9600);
+
+}
+
+
+void loop() {
+
+  
+
+  sensorRead = analogRead(piezo);
+
+  digitalWrite(trigger, LOW);
+  delayMicroseconds(15);
+
+  digitalWrite(trigger, HIGH);
+  delayMicroseconds(1000);
+  digitalWrite(trigger, LOW);
+
+  duration = pulseIn(echo, HIGH);
+ 
+  distance = duration * 0.034 / 2; 
+
+  Serial.print(distance);
+  Serial.println(" cm");
+  Serial.print(sensorRead);
+  Serial.println(" peso");
+
+
+   if(SerialBT.available()){
+  SerialBT.print(distance);
+  SerialBT.print(" cm, ");
+  SerialBT.print(sensorRead);
+  SerialBT.print(" piezo, ");
+  SerialBT.print("profundidade: ");
+  if(100 - distance < 0){
+    SerialBT.print("???");
+    }else{
+     SerialBT.print( 100 - distance);
+    }
+    
+  SerialBT.println(" cm");
+ }
+ delay(10);
+
+
+}
